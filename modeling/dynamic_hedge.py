@@ -33,7 +33,10 @@ def dynamic_hedge(hedge_freq=10):
  
     hedge_step_days = max(1, int(hedge_freq)) # guarantees hedging freq is at least 1 day
     dt_outer = T / num_steps_outer 
-    hedge_indices = np.arange(0, num_steps_outer + 1, hedge_step_days) # time steps to hedge at 
+
+    steps_per_day = num_steps_outer / (T * 365)
+    hedge_step = int(round(hedge_step_days * steps_per_day))
+    hedge_indices = np.arange(0, num_steps_outer + 1, hedge_step) # time steps to hedge at 
  
     # generate outer simulation
     np.random.seed(42)
@@ -41,19 +44,16 @@ def dynamic_hedge(hedge_freq=10):
     S_paths, V_paths = sim_heston_paths(S0, v0, r, kappa, theta, sigma, rho,
                                         dt_outer, num_steps_outer, num_paths_outer, Z_outer)
  
- 
-    cash = np.zeros((num_paths_outer, 1)) # initialize cash account for each outer path
-    stock_pos = np.zeros((num_paths_outer, 1)) # initialize stock position
+
+    cash = np.zeros(num_paths_outer)        # initialize cash account for each outer path
+    stock_pos = np.zeros(num_paths_outer)   # initialize stock position
 
     for t_idx in hedge_indices:
         tau = T - t_idx * dt_outer # time remaining until option expires 
-        # check if at expiration 
-        if tau <= 0 or t_idx >= S_paths.shape[1]: 
-            break
  
         if t_idx > 0:
             time_elapsed = hedge_step_days * dt_outer  
-            cash[:, 0] *= np.exp(r * time_elapsed) # accrue interest 
+            cash *= np.exp(r * time_elapsed) # accrue interest 
  
         S_t = S_paths[:, t_idx] # get current stock price
         V_t = V_paths[:, t_idx] # get current variance 
@@ -62,8 +62,6 @@ def dynamic_hedge(hedge_freq=10):
         prices = np.zeros_like(S_t)
  
         num_steps_remaining = num_steps_outer - t_idx # how many time steps until maturity 
-        if num_steps_remaining == 0:
-            break
  
         for i in range(num_paths_outer):
             # generate inner simulation
@@ -86,19 +84,19 @@ def dynamic_hedge(hedge_freq=10):
             prices[i] = price
  
         if t_idx == 0:
-            stock_pos[:, 0] = deltas
-            cash[:, 0] = prices.reshape(-1) - deltas * S_t
+            stock_pos = deltas
+            cash = prices.reshape(-1) - deltas * S_t
         else:
-            delta_diff = deltas - stock_pos[:, 0]
-            cash[:, 0] -= delta_diff * S_t
-            stock_pos[:, 0] = deltas 
+            delta_diff = deltas - stock_pos
+            cash -= delta_diff * S_t
+            stock_pos = deltas 
  
     S_T = S_paths[:, -1] # get final stock price 
     payoff = np.maximum(S_T - K, 0) # option payoff at maturity 
     
-    cash[:, 0] *= np.exp(r * hedge_step_days * dt_outer) # accrue interest for final period
+    cash *= np.exp(r * hedge_step_days * dt_outer) # accrue interest for final period
     
-    pnl = stock_pos[:, 0] * S_T + cash[:, 0] - payoff # calculate final pnl
+    pnl = stock_pos * S_T + cash - payoff # calculate final pnl
  
     print("Mean PnL:", np.mean(pnl))
     print("Std PnL:", np.std(pnl))
