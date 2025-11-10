@@ -34,4 +34,89 @@ def dynamic_hedge(hedge_freq = 10):
     
     finally return PnL -> should be (M,1) array where M is num of paths'''
 
-# FEEL FREE TO ADD ANY HELPER FUNCTIONS OR PLOTTING CODE AS NECESSARY
+ 
+    hedge_step_days = max(1, int(hedge_freq)) # guarantees hedging freq is at least 1 day
+    dt_outer = T / num_steps_outer 
+
+    steps_per_day = num_steps_outer / (T * 365)
+    hedge_step = int(round(hedge_step_days * steps_per_day))
+    hedge_indices = np.arange(0, num_steps_outer + 1, hedge_step) # time steps to hedge at 
+ 
+    # generate outer simulation
+    np.random.seed(42)
+    Z_outer = np.random.randn(num_paths_outer, 2, num_steps_outer)
+    S_paths, V_paths = sim_heston_paths(S0, v0, r, kappa, theta, sigma, rho,
+                                        dt_outer, num_steps_outer, num_paths_outer, Z_outer)
+ 
+
+    cash = np.zeros(num_paths_outer)        # initialize cash account for each outer path
+    stock_pos = np.zeros(num_paths_outer)   # initialize stock position
+
+    for t_idx in hedge_indices:
+        tau = T - t_idx * dt_outer # time remaining until option expires 
+ 
+        if t_idx > 0:
+            time_elapsed = hedge_step_days * dt_outer  
+            cash *= np.exp(r * time_elapsed) # accrue interest 
+ 
+        S_t = S_paths[:, t_idx] # get current stock price
+        V_t = V_paths[:, t_idx] # get current variance 
+ 
+        deltas = np.zeros_like(S_t)
+        prices = np.zeros_like(S_t)
+ 
+        num_steps_remaining = num_steps_outer - t_idx # how many time steps until maturity 
+ 
+        for i in range(num_paths_outer):
+            # generate inner simulation
+            Z_inner = np.random.randn(num_paths_inner, 2, num_steps_remaining)
+ 
+            s_main, _ = sim_heston_paths(S_t[i], V_t[i], r, kappa, theta, sigma, rho,
+                                         dt_outer, num_steps_remaining, num_paths_inner, Z_inner)
+            s_plus, _ = sim_heston_paths(S_t[i] + h, V_t[i], r, kappa, theta, sigma, rho,
+                                         dt_outer, num_steps_remaining, num_paths_inner, Z_inner)
+            s_minus, _ = sim_heston_paths(S_t[i] - h, V_t[i], r, kappa, theta, sigma, rho,
+                                          dt_outer, num_steps_remaining, num_paths_inner, Z_inner)
+ 
+            price = heston_option_price(s_main, K, tau)
+            price_plus = heston_option_price(s_plus, K, tau)
+            price_minus = heston_option_price(s_minus, K, tau)
+ 
+            delta, _ = heston_greeks(price, price_plus, price_minus, h) # compute delta
+ 
+            deltas[i] = delta
+            prices[i] = price
+ 
+        if t_idx == 0:
+            stock_pos = deltas
+            cash = prices.reshape(-1) - deltas * S_t
+        else:
+            delta_diff = deltas - stock_pos
+            cash -= delta_diff * S_t
+            stock_pos = deltas 
+ 
+    S_T = S_paths[:, -1] # get final stock price 
+    payoff = np.maximum(S_T - K, 0) # option payoff at maturity 
+    
+    cash *= np.exp(r * hedge_step_days * dt_outer) # accrue interest for final period
+    
+    pnl = stock_pos * S_T + cash - payoff # calculate final pnl
+ 
+    print("Mean PnL:", np.mean(pnl))
+    print("Std PnL:", np.std(pnl))
+    
+    print(pnl)
+    print(np.shape(pnl))
+ 
+    plt.hist(pnl, bins=50, edgecolor='black')
+    plt.title(f'PnL Distribution')
+    plt.xlabel('PnL')
+    plt.ylabel('Frequency')
+    plt.grid(True)
+    plt.show()
+ 
+    return pnl
+ 
+if __name__ == "__main__":
+    dynamic_hedge(hedge_freq=10)
+
