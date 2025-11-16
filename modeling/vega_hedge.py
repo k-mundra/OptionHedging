@@ -15,9 +15,9 @@ def compute_vega(S, v, r, kappa, theta, sigma, rho, K, tau, num_steps, num_paths
                                    dt, num_steps, num_paths_inner, Z_inner)
     
     # price options at each variance level
-    price = heston_option_price(s_main, K, tau)
-    price_plus = heston_option_price(s_plus, K, tau)
-    price_minus = heston_option_price(s_minus, K, tau)
+    price = heston_option_price(s_main, K, r, tau)
+    price_plus = heston_option_price(s_plus, K, r, tau)
+    price_minus = heston_option_price(s_minus, K, r, tau)
     
     # finite diff for vega
     vega = (price_plus - price_minus) / (2 * h_vega)
@@ -98,10 +98,10 @@ def dynamic_hedge_vega(hedge_freq=10):
             s_minus1, _ = sim_heston_paths(S_t[i] - h, V_t[i], r, kappa, theta, sigma, rho,
                                            dt_outer, num_steps_remaining, num_paths_inner, Z_inner)
             
-            price1 = heston_option_price(s_main1, K1, tau)
-            price_plus1 = heston_option_price(s_plus1, K1, tau)
-            price_minus1 = heston_option_price(s_minus1, K1, tau)
-            delta1, _ = heston_greeks(price1, price_plus1, price_minus1, h)
+            price1 = heston_option_price(s_main1, K1, r, tau)
+            price_plus1 = heston_option_price(s_plus1, K1, r, tau)
+            price_minus1 = heston_option_price(s_minus1, K1, r, tau)
+            delta1 = heston_greeks(price_plus1, price_minus1, h, mode='delta')
             
             vega1, _ = compute_vega(S_t[i], V_t[i], r, kappa, theta, sigma, rho,
                                     K1, tau, num_steps_remaining, num_paths_inner, dt_outer, h_vega)
@@ -119,10 +119,10 @@ def dynamic_hedge_vega(hedge_freq=10):
             s_minus2, _ = sim_heston_paths(S_t[i] - h, V_t[i], r, kappa, theta, sigma, rho,
                                            dt_outer, num_steps_remaining, num_paths_inner, Z_inner)
             
-            price2 = heston_option_price(s_main2, K2, tau)
-            price_plus2 = heston_option_price(s_plus2, K2, tau)
-            price_minus2 = heston_option_price(s_minus2, K2, tau)
-            delta2, _ = heston_greeks(price2, price_plus2, price_minus2, h)
+            price2 = heston_option_price(s_main2, K2, r, tau)
+            price_plus2 = heston_option_price(s_plus2, K2, r, tau)
+            price_minus2 = heston_option_price(s_minus2, K2, r, tau)
+            delta2 = heston_greeks(price_plus2, price_minus2, h, mode='delta')
             
             vega2, _ = compute_vega(S_t[i], V_t[i], r, kappa, theta, sigma, rho,
                                     K2, tau, num_steps_remaining, num_paths_inner, dt_outer, h_vega)

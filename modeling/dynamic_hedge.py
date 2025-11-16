@@ -74,11 +74,11 @@ def dynamic_hedge(hedge_freq=10):
             s_minus, _ = sim_heston_paths(S_t[i] - h, V_t[i], r, kappa, theta, sigma, rho,
                                           dt_outer, num_steps_remaining, num_paths_inner, Z_inner)
  
-            price = heston_option_price(s_main, K, tau)
-            price_plus = heston_option_price(s_plus, K, tau)
-            price_minus = heston_option_price(s_minus, K, tau)
+            price = heston_option_price(s_main, K, r, tau)
+            price_plus = heston_option_price(s_plus, K, r, tau)
+            price_minus = heston_option_price(s_minus, K, r, tau)
  
-            delta, _ = heston_greeks(price, price_plus, price_minus, h) # compute delta
+            delta = heston_greeks(price_plus, price_minus, h, mode='delta') # compute delta
  
             deltas[i] = delta
             prices[i] = price
