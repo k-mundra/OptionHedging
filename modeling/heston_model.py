@@ -5,7 +5,7 @@ def sim_heston_paths(S0, v0, r, kappa, theta, sigma, rho, dt, num_steps, num_pat
     S[:, 0] = S0
 
     v = np.zeros((num_paths, num_steps + 1)) # container for stochastic volatility
-    v[:, 0] = v0
+    v[:, 0] = np.maximum(v0, 0.0)
 
     for t in range(1, num_steps + 1):
         Z1 = Z_future[:,0,t-1]
@@ -13,7 +13,7 @@ def sim_heston_paths(S0, v0, r, kappa, theta, sigma, rho, dt, num_steps, num_pat
         W1 = Z1 * np.sqrt(dt)
         W2 = (rho * Z1 + np.sqrt(1 - rho**2) * Z2) * np.sqrt(dt)
 
-        v[:, t] = np.abs(v[:, t - 1] + kappa * (theta - v[:, t - 1]) * dt + sigma * np.sqrt(v[:, t - 1]) * W2)
+        v[:, t] = np.maximum((v[:, t - 1] + kappa * (theta - v[:, t - 1]) * dt + sigma * np.sqrt(v[:, t - 1]) * W2), 0.0)
         S[:, t] = S[:, t - 1] * np.exp((r - 0.5 * v[:, t - 1]) * dt + np.sqrt(v[:, t - 1]) * W1)
 
     return S, v
@@ -24,7 +24,7 @@ def heston_option_price(S, K, r, discount_period):
     option_price = np.mean(discounted_payoffs) # average over all paths
     return option_price
 
-def heston_greeks(price_plus, price_minus, h, mode: str, price=None):
+def heston_greeks(price_plus, price_minus, h, mode: str, price=0):
     if mode == 'delta':
         delta = (price_plus - price_minus) / (2 * h) # first derivative
         return delta
