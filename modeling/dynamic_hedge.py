@@ -16,7 +16,7 @@ def dynamic_hedge(hedge_freq=10):
     num_paths_outer = 100 # paths for outer (baseline) simulation
     h = 1e-3 # perturbation to stock price for greek computation
 
-    num_paths_inner = 50
+    num_paths_inner = 500
 
     '''
     input to function: hedge_freq -> this is the hedging frequency in days,
@@ -74,11 +74,11 @@ def dynamic_hedge(hedge_freq=10):
             s_minus, _ = sim_heston_paths(S_t[i] - h, V_t[i], r, kappa, theta, sigma, rho,
                                           dt_outer, num_steps_remaining, num_paths_inner, Z_inner)
  
-            price = heston_option_price(s_main, K, tau)
-            price_plus = heston_option_price(s_plus, K, tau)
-            price_minus = heston_option_price(s_minus, K, tau)
+            price = heston_option_price(s_main, K, r, tau)
+            price_plus = heston_option_price(s_plus, K, r, tau)
+            price_minus = heston_option_price(s_minus, K, r, tau)
  
-            delta, _ = heston_greeks(price, price_plus, price_minus, h) # compute delta
+            delta = heston_greeks(price_plus, price_minus, h, mode='delta') # compute delta
  
             deltas[i] = delta
             prices[i] = price
@@ -100,14 +100,15 @@ def dynamic_hedge(hedge_freq=10):
  
     print("Mean PnL:", np.mean(pnl))
     print("Std PnL:", np.std(pnl))
-    
-    print(pnl)
-    print(np.shape(pnl))
  
-    plt.hist(pnl, bins=50, edgecolor='black')
-    plt.title(f'PnL Distribution')
-    plt.xlabel('PnL')
-    plt.ylabel('Frequency')
+    plt.hist(pnl, bins=50, edgecolor='black', alpha=0.7, color='steelblue')
+    plt.axvline(np.mean(pnl), color='red', linestyle='--', linewidth=2,
+                label=f'Mean = ${np.mean(pnl):.2f}')
+    plt.axvline(0, color='black', linestyle='-', linewidth=1)
+    plt.xlabel('P&L (dollars $)')
+    plt.ylabel('Freq')
+    plt.title(f'PnL Distribution, Delta Hedging')
+    plt.legend()
     plt.grid(True)
     plt.show()
  
