@@ -1,4 +1,4 @@
-from heston_model import sim_heston_paths, heston_greeks, heston_option_price
+from modeling.heston_model_mc import sim_heston_paths, heston_greeks, heston_option_price
 import numpy as np
 import matplotlib.pyplot as plt
 
