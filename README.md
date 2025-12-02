@@ -1,4 +1,4 @@
-# CS6242 Course Project
+# CSE 6730 Course Project
 
 ### Group 19 - Aishwarya, Anusha, Kashvi, Soumil
 
