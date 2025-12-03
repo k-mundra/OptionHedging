@@ -21,3 +21,31 @@ Key components:
 
 ## Project Structure
 
+OptionHedging/
+├── datasets/
+│ └── Apple # Apple options data
+├── modeling/
+│ ├── calibration.py # Calibration using historical data
+│ ├── delta_hedge_mc.py # Delta-only hedging (Monte Carlo)
+│ ├── delta_vega_hedge_mc.py # Delta-vega hedging (Monte Carlo)
+│ ├── delta_vega_hedge_sa.py # Delta-vega hedging (Semi-Analytical)
+│ ├── heston_model_mc.py # Heston simulation (Monte Carlo)
+│ └── heston_model_sa.py # Heston simulation (Semi-Analytical)
+├── .gitignore
+└── README.md
+
+
+## How to Run
+
+Navigate to the `modeling` directory and execute any Python script:
+
+```bash
+cd modeling
+python delta_hedge_mc.py
+```
+
+Make sure you have the required Python packages installed: numpy, matplotlib, scipy, and pandas.
+
+## License
+For academic use only.
+
