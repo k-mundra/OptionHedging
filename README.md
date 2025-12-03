@@ -22,7 +22,7 @@ Key components:
 ## Project Structure
 
 - `datasets/`
-  - `AAPL_option_data.csv` – Apple options data used for calibration and simulation
+  - `Apple/` – Apple options data used for calibration and simulation
 
 - `modeling/`
   - `calibration.py` – Calibrate Heston model parameters using historical market data
