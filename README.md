@@ -1,6 +1,6 @@
 # HedgeStorm: Quantitative Risk Management During Market Shocks with Delta and Vega Hedging in a Heston-Based Framework
 
-Modeling & Simulation Course Project
+Modeling & Simulation Course Project (forked from https://github.gatech.edu/dpendyala6/OptionHedging/tree/main)
 
 ### Group 19 - Kashvi Mundra, Aishwarya Pendyala, Anusha Saha, Soumil Sahu
 
