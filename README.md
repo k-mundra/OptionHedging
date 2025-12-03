@@ -21,18 +21,20 @@ Key components:
 
 ## Project Structure
 
-OptionHedging/
-├── datasets/
-│ └── Apple # Apple options data
-├── modeling/
-│ ├── calibration.py # Calibration using historical data
-│ ├── delta_hedge_mc.py # Delta-only hedging (Monte Carlo)
-│ ├── delta_vega_hedge_mc.py # Delta-vega hedging (Monte Carlo)
-│ ├── delta_vega_hedge_sa.py # Delta-vega hedging (Semi-Analytical)
-│ ├── heston_model_mc.py # Heston simulation (Monte Carlo)
-│ └── heston_model_sa.py # Heston simulation (Semi-Analytical)
-├── .gitignore
-└── README.md
+- `datasets/`
+  - `AAPL_option_data.csv` – Apple options data used for calibration and simulation
+
+- `modeling/`
+  - `calibration.py` – Calibrate Heston model parameters using historical market data
+  - `delta_hedge_mc.py` – Delta-only hedging strategy using Monte Carlo simulation
+  - `delta_vega_hedge_mc.py` – Delta-vega hedging using Monte Carlo simulation
+  - `delta_vega_hedge_sa.py` – Delta-vega hedging using semi-analytical option pricing
+  - `heston_model_mc.py` – Heston model simulation using Monte Carlo
+  - `heston_model_sa.py` – Heston model using semi-analytical pricing formula
+
+- `.gitignore` – Standard Python ignore file
+- `README.md` – Project overview and instructions
+
 
 
 ## How to Run
