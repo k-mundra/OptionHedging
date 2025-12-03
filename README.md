@@ -1,6 +1,6 @@
-# CSE 6730 Course Project
+# HedgeStorm: Quantitative Risk Management During Market Shocks with Delta and Vega Hedging in a Heston-Based Framework
 
-HedgeStorm: Quantitative Risk Management During Market Shocks with Delta and Vega Hedging in a Heston-Based Framework
+Modeling & Simulation Course Project
 
 ### Group 19 - Kashvi Mundra, Aishwarya Pendyala, Anusha Saha, Soumil Sahu
 
