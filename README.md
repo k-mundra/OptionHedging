@@ -4,8 +4,6 @@ Modeling & Simulation Course Project (forked from private repo https://github.ga
 
 ### Group 19 - Kashvi Mundra, Aishwarya Pendyala, Anusha Saha, Soumil Sahu
 
-[Link to overleaf doc (READ ONLY)](https://www.overleaf.com/read/xhndsyqxvgyj#ab3d43)
-
 ---
 
 HedgeStorm is a Python-based simulation framework for evaluating hedging strategies under stochastic volatility, particularly during market shocks such as COVID-19.
